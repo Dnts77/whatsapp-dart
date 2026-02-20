@@ -1,4 +1,10 @@
+// ignore_for_file: use_build_context_synchronously, await_only_futures
+//ignore_for_file: unused_import
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:whatsapp/home.dart';
+import 'package:whatsapp/model/user.dart' as user_model;
 import 'package:whatsapp/sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,6 +15,73 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final TextEditingController _controllerEmail = TextEditingController(text: "daniel@gmail.com");
+  final TextEditingController _controllerSenha = TextEditingController(text: "1234567");
+  String _errorMessage = "";
+
+  void _validateFields(){
+    
+    String senha = _controllerSenha.text;
+    String email = _controllerEmail.text;
+
+     if(email.contains("@") && email.isNotEmpty){
+        
+        if (senha.isNotEmpty) {
+          setState(() {
+            _errorMessage = "";
+          });
+          user_model.User usuario = user_model.User();
+          
+          usuario.email = email;
+          usuario.senha = senha;
+          
+          _userLogin(usuario);
+        }
+        else{
+          setState(() {
+            _errorMessage = "Preencha a senha";
+          });
+        }
+
+      }else{
+        setState(() {
+          _errorMessage = "Preencha o e-mail corretamente";
+        });
+      }
+
+  }
+
+  void _userLogin(user_model.User usuario){
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    auth.signInWithEmailAndPassword(
+      email: usuario.email, 
+      password: usuario.senha
+    ).then((firebaseUser){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+    }).catchError((error){
+      setState(() {
+        _errorMessage = "Erro ao autenticar usuário. Tente novamente!";
+      });
+    });
+  }
+
+  Future<void>_checkLoggedUser()async{
+    FirebaseAuth auth = FirebaseAuth.instance;
+    //auth.signOut();
+    User? loggedUser = await auth.currentUser;
+    if(loggedUser != null){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home() ));
+    }
+  }
+
+  @override
+  void initState() {
+    _checkLoggedUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,6 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: TextField(
+                    controller: _controllerEmail,
                     autofocus: true,
                     keyboardType: TextInputType.emailAddress,
                     style: const TextStyle(
@@ -50,7 +124,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 TextField(
+                    controller: _controllerSenha,
                     keyboardType: TextInputType.text,
+                    obscureText: true,
                     style: const TextStyle(
                       fontSize: 20
                     ),
@@ -74,7 +150,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(32)
                       )
                     ),
-                    onPressed: (){}, 
+                    onPressed: (){
+                      _validateFields();
+                    }, 
                     child: const Text(
                       "Entrar",
                       style:  TextStyle(color: Colors.white, fontSize: 20),
@@ -91,6 +169,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
                     },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Center(
+                    child: Text(
+                      _errorMessage,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 20
+                      )
+                    ),
                   ),
                 )
               ],
