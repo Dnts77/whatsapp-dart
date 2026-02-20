@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:whatsapp/home.dart';
@@ -17,9 +15,9 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
 
   //Controladores Nome/Email/Senha
-  final TextEditingController _controllerNome = TextEditingController(text: "Daniel Dantas");
-  final TextEditingController _controllerEmail = TextEditingController(text: "daniel@gmail.com");
-  final TextEditingController _controllerSenha = TextEditingController(text: "1234567");
+  final TextEditingController _controllerNome = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
   String _errorMessage = "";
 
 
