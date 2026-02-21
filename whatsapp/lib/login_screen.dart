@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       email: usuario.email, 
       password: usuario.senha
     ).then((firebaseUser){
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
     }).catchError((error){
       setState(() {
         _errorMessage = "Erro ao autenticar usuário. Tente novamente!";
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
     //auth.signOut();
     User? loggedUser = await auth.currentUser;
     if(loggedUser != null){
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home() ));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home() ));
     }
   }
 
