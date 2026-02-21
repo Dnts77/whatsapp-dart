@@ -1,0 +1,23 @@
+// ignore_for_file: unnecessary_getters_setters
+
+class Chat {
+  late String _nome;
+  late String _mensagem;
+  late String _caminhoFoto;
+
+  Chat(this._nome, this._mensagem, this._caminhoFoto);
+  
+  String get nome => _nome;
+
+ set nome(String value) => _nome = value;
+
+  String get mensagem => _mensagem;
+
+ set mensagem( String value) => _mensagem = value;
+
+  String get caminhoFoto => _caminhoFoto;
+
+ set caminhoFoto( String value) => _caminhoFoto = value;
+
+
+}
