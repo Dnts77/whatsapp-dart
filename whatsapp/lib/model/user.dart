@@ -7,6 +7,16 @@ class User {
 
   User();
 
+
+  //Converte o objeto usuário em map
+  Map<String, dynamic> toMap(){
+    Map<String, dynamic> map = {
+      "nome" : nome,
+      "email" : email,
+    };
+    return map;
+  } 
+
   String get senha => _senha;
   set senha(String value){
     _senha = value;
