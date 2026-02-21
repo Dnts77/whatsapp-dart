@@ -1,5 +1,6 @@
 //ignore_for_file: unused_import
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whatsapp/login_screen.dart';
 import 'home.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,6 +11,7 @@ void main() async{
   await Firebase.initializeApp();
   //FirebaseFirestore.instance.collection("usuarios").doc("001").set({"nome" : "Jamilton"});
 
+  await Supabase.initialize(url: "https://qsivrzekbkwddqqjdozd.supabase.co", anonKey: "sb_publishable_FM6JYiOl-q4U4_VuxoQ-Ow_-xW_QckO"); //Funciona pelo amor de Deus
 
   runApp(MaterialApp(
     home: LoginScreen(),
