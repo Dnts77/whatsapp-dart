@@ -1,5 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:whatsapp/home.dart';
@@ -72,7 +72,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       email: usuario.email,
       password: usuario.senha
     ).then((firebaseUser) {
-      Navigator.push(
+
+      //Salvando os dados do usuário
+      FirebaseFirestore db = FirebaseFirestore.instance;
+
+      db.collection("usuarios").doc(firebaseUser.user!.uid).set(usuario.toMap());
+
+      //Usuário vai pra tela principal
+      Navigator.pushReplacement(
         context, 
         MaterialPageRoute(
           builder: (context) => Home()
