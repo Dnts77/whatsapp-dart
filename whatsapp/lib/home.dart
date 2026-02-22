@@ -1,4 +1,6 @@
-// ignore_for_file: await_only_futures
+// ignore_for_file: await_only_futures, use_build_context_synchronously
+//ignore_for_file: unused_field
+import 'package:whatsapp/login_screen.dart';
 import 'package:whatsapp/screens/chats.dart';
 import 'package:whatsapp/screens/contacts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +19,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
 
   TabController? _tabController;
 
+  List<String> menuItens = [
+    "Configurações",
+    "Deslogar"
+  ];
+
   Future<void> _recuperarEmail() async{
     FirebaseAuth auth = FirebaseAuth.instance;
     User? loggedUser = await auth.currentUser;
@@ -31,6 +38,25 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
     _recuperarEmail();
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
+  }
+
+  void _menuItemChoice(String chosenItem){
+    //print("Item Escolhido ${chosenItem}");
+    switch (chosenItem) {
+      case "Configurações":
+        
+        break;
+      case "Deslogar":
+        _userSignOut();
+        break;
+      
+    }
+  }
+
+  Future<void> _userSignOut()async{
+    FirebaseAuth auth = FirebaseAuth.instance;
+    await auth.signOut();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
   }
 
   @override
@@ -52,6 +78,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
             const Text("Contatos", style: TextStyle(color: Colors.white))
           ],
         ),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: _menuItemChoice,
+            itemBuilder: (context){ 
+              return menuItens.map((String item){
+                return PopupMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList();
+            }
+          )
+        ],
       ),
       body: TabBarView(
         controller: _tabController,
