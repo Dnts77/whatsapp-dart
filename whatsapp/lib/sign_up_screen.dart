@@ -79,12 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       db.collection("usuarios").doc(firebaseUser.user!.uid).set(usuario.toMap());
 
       //Usuário vai pra tela principal
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(
-          builder: (context) => Home()
-        )
-      );
+      Navigator.pushNamedAndRemoveUntil(context, "/home", (_) =>false ); //Remove todas as rotas anteriores
     }).catchError((error){
       setState(() {
         _errorMessage = "Erro ao cadastrar usuário, verifique e tente novamente!";

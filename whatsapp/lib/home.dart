@@ -56,7 +56,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   Future<void> _userSignOut()async{
     FirebaseAuth auth = FirebaseAuth.instance;
     await auth.signOut();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
+    Navigator.pushReplacementNamed(context, "/login");
   }
 
   @override

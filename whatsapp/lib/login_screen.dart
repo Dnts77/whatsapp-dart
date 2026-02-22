@@ -16,8 +16,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  final TextEditingController _controllerEmail = TextEditingController(text: "daniel@gmail.com");
-  final TextEditingController _controllerSenha = TextEditingController(text: "1234567");
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
   String _errorMessage = "";
 
   void _validateFields(){
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       email: usuario.email, 
       password: usuario.senha
     ).then((firebaseUser){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
+      Navigator.pushReplacementNamed(context, "/home");
     }).catchError((error){
       setState(() {
         _errorMessage = "Erro ao autenticar usuário. Tente novamente!";
@@ -72,7 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
     //auth.signOut();
     User? loggedUser = await auth.currentUser;
     if(loggedUser != null){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home() ));
+
+      Navigator.pushReplacementNamed(context, "/home");
     }
   }
 
