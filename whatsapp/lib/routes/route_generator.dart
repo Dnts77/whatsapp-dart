@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp/home.dart';
 import 'package:whatsapp/login_screen.dart';
+import 'package:whatsapp/screens/settings.dart';
 import 'package:whatsapp/sign_up_screen.dart';
 
 
@@ -23,6 +24,10 @@ class RouteGenerator {
       case "/home":
         return MaterialPageRoute(
           builder: (_) => Home()
+        );
+      case "/configuracoes":
+        return MaterialPageRoute(
+          builder: (_) => Settings()
         );
       default:
         return _routeError();
