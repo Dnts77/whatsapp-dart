@@ -1,7 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:supabase_flutter/supabase_flutter.dart';
 //ignore_for_file: unused_field
+//ignore_for_file: unused_import
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -14,6 +18,9 @@ class _SettingsState extends State<Settings> {
 
   final TextEditingController _controllerNome = TextEditingController();
   File? _image;
+  String? _loggedUserId;
+  dynamic imageUrl;
+  
 
   Future<void> _imageRecover(String imageOrigin)async{
     final ImagePicker picker = ImagePicker();
@@ -24,10 +31,42 @@ class _SettingsState extends State<Settings> {
     if(selectedImage != null){
       setState(() {
       _image = File(selectedImage.path);
+      _imageUpload();
       });
     }
     
     
+  }
+
+  Future <void> _imageUpload()async{
+    final supabase = Supabase.instance.client;
+    final avatarFile = File(_image!.path);
+    final String fileName = "$_loggedUserId.jpg";
+    
+    try {
+      await supabase.storage.from("perfil").upload(fileName, avatarFile, fileOptions: const FileOptions(upsert: true));
+      imageUrl = supabase.storage.from("perfil").getPublicUrl(fileName);
+      //print("Sucesso! Url da imagem: $imageUrl" );
+    } catch (e) {
+      //print("Erro no upload: $e");
+    }
+  }
+
+  Future<void> _userDataRecovery() async{
+    fb.FirebaseAuth auth = fb.FirebaseAuth.instance;
+    fb.User? loggedUser = auth.currentUser;
+    if(loggedUser != null){
+      setState(() {
+        _loggedUserId = loggedUser.uid;
+      });
+    }
+    
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _userDataRecovery();
   }
 
   @override
@@ -51,7 +90,8 @@ class _SettingsState extends State<Settings> {
                 //Carregando
                 CircleAvatar(
                   radius: 100,
-                  backgroundImage: NetworkImage("https://qsivrzekbkwddqqjdozd.supabase.co/storage/v1/object/sign/perfil/perfil5.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yODk3ZjE2Yi04NGIxLTRjMzQtOGI4Ny1hOWM3NWNiZTQ1MGMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJwZXJmaWwvcGVyZmlsNS5qcGciLCJpYXQiOjE3NzE3MDM2ODEsImV4cCI6NDI5NDU4MzY4MX0._PVLv5v6xBHwjQ-XIfr2IKtXq7RbMvKCS5mWPMtPz1A"),
+                  backgroundImage: imageUrl != null ?
+                  NetworkImage(imageUrl) : null,
                   backgroundColor: Colors.grey,
                 ),
                 Row(
@@ -76,7 +116,7 @@ class _SettingsState extends State<Settings> {
                   child: TextField(
                     controller: _controllerNome,
                     autofocus: true,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                     style: const TextStyle(
                       fontSize: 20
                     ),
