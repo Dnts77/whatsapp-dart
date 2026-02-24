@@ -1,3 +1,5 @@
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,12 +47,35 @@ class _SettingsState extends State<Settings> {
     
     try {
       await supabase.storage.from("perfil").upload(fileName, avatarFile, fileOptions: const FileOptions(upsert: true));
-      imageUrl = supabase.storage.from("perfil").getPublicUrl(fileName);
-      //print("Sucesso! Url da imagem: $imageUrl" );
+      setState(() {
+        imageUrl = "${supabase.storage.from("perfil").getPublicUrl(fileName)}?t=${DateTime.now().millisecondsSinceEpoch}";
+      });
+      _updateSupabaseImage(fileName);
     } catch (e) {
-      //print("Erro no upload: $e");
+      log(e.toString());
     }
   }
+
+  //Vamo ver se funciona
+  Future<void> _updateSupabaseImage(String url) async{
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Map<String, dynamic> dataUpdate = {
+      "urlImagem" : url
+    };
+    db.collection("usuarios").doc(_loggedUserId).update(dataUpdate);
+    //print("funcionou?");
+  }
+
+  Future<void> _updateFirestoreName() async{
+    String nome = _controllerNome.text;
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Map<String, dynamic> dataUpdate = {
+      "nome" : nome
+    };
+    db.collection("usuarios").doc(_loggedUserId).update(dataUpdate);
+    //print("funcionou?");
+  }
+  
 
   Future<void> _userDataRecovery() async{
     fb.FirebaseAuth auth = fb.FirebaseAuth.instance;
@@ -59,6 +84,18 @@ class _SettingsState extends State<Settings> {
       setState(() {
         _loggedUserId = loggedUser.uid;
       });
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentSnapshot snapshot = await db.collection("usuarios").doc(_loggedUserId).get();
+
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    _controllerNome.text = data["nome"];
+
+    if(data["urlImagem"] != null){
+      setState(() {
+        imageUrl = data["urlImagem"];
+      });
+      print("Funcionou?");
+    }
     }
     
   }
@@ -120,6 +157,9 @@ class _SettingsState extends State<Settings> {
                     style: const TextStyle(
                       fontSize: 20
                     ),
+                    /*onChanged: (_){
+                      _updateFirestoreName();
+                    },*/
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
                       filled: true,
@@ -142,7 +182,7 @@ class _SettingsState extends State<Settings> {
                       )
                     ),
                     onPressed: (){
-                      
+                      _updateFirestoreName();
                     }, 
                     child: const Text(
                       "Salvar",
