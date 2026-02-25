@@ -56,8 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
     FirebaseAuth auth = FirebaseAuth.instance;
 
     auth.signInWithEmailAndPassword(
-      email: usuario.email, 
-      password: usuario.senha
+      email: usuario.email!, 
+      password: usuario.senha!
     ).then((firebaseUser){
       Navigator.pushReplacementNamed(context, "/home");
     }).catchError((error){

@@ -69,8 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     FirebaseAuth auth = FirebaseAuth.instance;
 
     auth.createUserWithEmailAndPassword(
-      email: usuario.email,
-      password: usuario.senha
+      email: usuario.email!,
+      password: usuario.senha!
     ).then((firebaseUser) {
 
       //Salvando os dados do usuário
