@@ -82,6 +82,9 @@ class _ContactsState extends State<Contacts> {
                 List<User> itensList = snapshot.data!;
                 User usuario = itensList[index];
                 return ListTile(
+                  onTap: (){
+                    Navigator.pushNamed(context, "/mensagens", arguments: usuario);
+                  },
                   contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                   leading: CircleAvatar(
                     maxRadius: 30,
