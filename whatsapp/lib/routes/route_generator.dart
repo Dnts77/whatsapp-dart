@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp/home.dart';
 import 'package:whatsapp/login_screen.dart';
+import 'package:whatsapp/model/user.dart';
+import 'package:whatsapp/screens/messages.dart';
 import 'package:whatsapp/screens/settings.dart';
 import 'package:whatsapp/sign_up_screen.dart';
 
@@ -8,6 +10,9 @@ import 'package:whatsapp/sign_up_screen.dart';
 class RouteGenerator {
 
   static Route<dynamic> generateRoute(RouteSettings settings){
+
+    final args = settings.arguments;
+
     switch (settings.name) {
       case "/":
         return MaterialPageRoute(
@@ -28,6 +33,10 @@ class RouteGenerator {
       case "/configuracoes":
         return MaterialPageRoute(
           builder: (_) => Settings()
+        );
+      case "/mensagens":
+        return MaterialPageRoute(
+          builder: (_) => Messages(args as User)
         );
       default:
         return _routeError();
