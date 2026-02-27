@@ -5,7 +5,7 @@ class User {
   String? _email;
   String? _senha;
   String? _urlImage;
- 
+  String? idUsuario;
 
   User();
 

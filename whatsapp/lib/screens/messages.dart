@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp/model/message.dart';
 import 'package:whatsapp/model/user.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Messages extends StatefulWidget {
   const Messages(this.contato, {super.key});
@@ -11,6 +14,10 @@ class Messages extends StatefulWidget {
 }
 
 class _MessagesState extends State<Messages> {
+
+  late String _loggedUserId;
+  late String _destUserId;
+
   List<String> chatList = [
     "Olá meu amigo, tudo bem?",
     "Tudo ótimo, e cntg?",
@@ -27,8 +34,42 @@ class _MessagesState extends State<Messages> {
     "Que daora",
   ];
   final TextEditingController _controllerMensagem = TextEditingController();
-  void _sendMessage() {}
-  void _sendPhoto(){}
+  void _sendMessage(){
+    String messageText = _controllerMensagem.text;
+
+    if (messageText.isNotEmpty) {
+      Message mensagem = Message();
+
+      mensagem.idUsuario = _loggedUserId;
+      mensagem.mensagem = messageText;
+      mensagem.urlImage = "";
+      mensagem.tipo = "texto";
+
+      _saveMessage(_loggedUserId, _destUserId, mensagem);
+    }
+  }
+  void _sendPhoto() {}
+
+  void _saveMessage(String idRemetente, String idDest, Message msg) async{
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    await db.collection("mensagens").doc(idRemetente).collection(idDest).add(msg.toMap());
+  }
+
+  Future<void> _userDataRecovery() async{
+    fb.FirebaseAuth auth = fb.FirebaseAuth.instance;
+    fb.User? loggedUser = auth.currentUser;
+    _loggedUserId = loggedUser!.uid;
+    _destUserId = widget.contato.idUsuario!;
+    
+    
+  }
+
+  @override
+  void initState() {
+    _userDataRecovery();
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +95,10 @@ class _MessagesState extends State<Messages> {
                   ),
                   prefixIcon: IconButton(
                     icon: Icon(Icons.camera_alt),
-                    onPressed: (){
+                    onPressed: () {
                       _sendPhoto();
                     },
-                  )
+                  ),
                 ),
               ),
             ),
@@ -76,17 +117,14 @@ class _MessagesState extends State<Messages> {
 
     var listView = Expanded(
       child: ListView.builder(
-        itemBuilder: (context, index){
-
+        itemBuilder: (context, index) {
           double containerWidth = MediaQuery.of(context).size.width * 0.8;
           Alignment alinhamento = Alignment.centerRight;
           Color cor = Color(0xffd2ffa5);
-          if(index % 2 == 0){
+          if (index % 2 == 0) {
             cor = Colors.white;
             alinhamento = Alignment.centerLeft;
           }
-
-
 
           return Align(
             alignment: alinhamento,
@@ -97,14 +135,9 @@ class _MessagesState extends State<Messages> {
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: cor,
-                  borderRadius: BorderRadius.all(Radius.circular(8))
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
                 ),
-                child: Text(
-                  chatList[index],
-                  style: TextStyle(
-                    fontSize: 18
-                  ),
-                ),
+                child: Text(chatList[index], style: TextStyle(fontSize: 18)),
               ),
             ),
           );
@@ -115,7 +148,21 @@ class _MessagesState extends State<Messages> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.contato.nome!),
+        title: Row(
+          children: [
+            CircleAvatar(
+              maxRadius: 20,
+              backgroundColor: Colors.grey,
+              backgroundImage: widget.contato.urlImage != null
+                  ? NetworkImage(widget.contato.urlImage!)
+                  : null,
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Text(widget.contato.nome!),
+            ),
+          ],
+        ),
         backgroundColor: Color(0xff075e54),
         foregroundColor: Colors.white,
       ),
@@ -130,12 +177,7 @@ class _MessagesState extends State<Messages> {
         child: SafeArea(
           child: Container(
             padding: EdgeInsets.all(8),
-            child: Column(
-              children: [
-                listView, 
-                chatBox
-              ]
-            ),
+            child: Column(children: [listView, chatBox]),
           ),
         ),
       ),

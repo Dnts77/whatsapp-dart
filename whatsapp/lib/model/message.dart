@@ -1,0 +1,31 @@
+class Message {
+  String? idUsuario;
+  String? _mensagem;
+  String? _urlImage;
+  String? _tipo;
+
+   Map<String, dynamic> toMap(){
+    Map<String, dynamic> map = {
+      "idUsuario" : idUsuario,
+      "mensagem" : mensagem,
+      "urlImage" : urlImage,
+      "tipo" : _tipo,
+    };
+    return map;
+  } 
+
+  String? get mensagem => _mensagem;
+  set mensagem( String value) => _mensagem = value;
+
+  String? get urlImage => _urlImage;
+  set urlImage( String value) => _urlImage = value;
+
+  String? get tipo => _tipo;
+  set tipo( String value) => _tipo = value;
+ 
+
+
+  Message();
+
+
+}

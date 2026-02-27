@@ -28,6 +28,7 @@ class _ContactsState extends State<Contacts> {
       var dados = item.data() as Map<String, dynamic>;
       if(dados["email"] == _loggedUserEmail) continue; //continue faz o parâmetro ser passado
       User usuario = User();
+      usuario.idUsuario = item.id;
       usuario.email = dados["email"] ?? "";
       usuario.nome = dados["nome"] ?? "Sem nome";
       usuario.urlImage = dados["urlImagem"] ?? "";
