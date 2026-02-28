@@ -14,9 +14,9 @@ class Messages extends StatefulWidget {
 }
 
 class _MessagesState extends State<Messages> {
-
   late String _loggedUserId;
   late String _destUserId;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   List<String> chatList = [
     "Olá meu amigo, tudo bem?",
@@ -34,7 +34,7 @@ class _MessagesState extends State<Messages> {
     "Que daora",
   ];
   final TextEditingController _controllerMensagem = TextEditingController();
-  void _sendMessage(){
+  void _sendMessage() {
     String messageText = _controllerMensagem.text;
 
     if (messageText.isNotEmpty) {
@@ -48,20 +48,24 @@ class _MessagesState extends State<Messages> {
       _saveMessage(_loggedUserId, _destUserId, mensagem);
     }
   }
+
   void _sendPhoto() {}
 
-  void _saveMessage(String idRemetente, String idDest, Message msg) async{
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    await db.collection("mensagens").doc(idRemetente).collection(idDest).add(msg.toMap());
+  void _saveMessage(String idRemetente, String idDest, Message msg) async {
+    await db
+        .collection("mensagens")
+        .doc(idRemetente)
+        .collection(idDest)
+        .add(msg.toMap());
+
+    _controllerMensagem.clear();
   }
 
-  Future<void> _userDataRecovery() async{
+  Future<void> _userDataRecovery() async {
     fb.FirebaseAuth auth = fb.FirebaseAuth.instance;
     fb.User? loggedUser = auth.currentUser;
     _loggedUserId = loggedUser!.uid;
     _destUserId = widget.contato.idUsuario!;
-    
-    
   }
 
   @override
@@ -69,7 +73,6 @@ class _MessagesState extends State<Messages> {
     _userDataRecovery();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +116,75 @@ class _MessagesState extends State<Messages> {
           ),
         ],
       ),
+    );
+
+    var stream = StreamBuilder(
+      stream: db
+          .collection("mensagens")
+          .doc(_loggedUserId)
+          .collection(_destUserId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(
+              child: Column(
+                children: [
+                  Text("Carregando Contatos..."),
+                  CircularProgressIndicator(),
+                ],
+              ),
+            );
+
+          case ConnectionState.active:
+          case ConnectionState.done:
+            QuerySnapshot querySnapshot =
+                snapshot.data as QuerySnapshot<Object>;
+            if (snapshot.hasError) {
+              return Expanded(child: Text("Erro ao carregar dados"));
+            } else {
+              return Expanded(
+                child: ListView.builder(
+                  reverse: true,
+                  itemBuilder: (context, index) {
+
+                    List<DocumentSnapshot> mensagens = querySnapshot.docs.toList();
+                    DocumentSnapshot item = mensagens[index];
+
+                    double containerWidth = MediaQuery.of(context).size.width * 0.8;
+                    Alignment alinhamento = Alignment.centerRight;
+                    Color cor = Color(0xffd2ffa5);
+                    if (_loggedUserId != item["idUsuario"]) {
+                      cor = Colors.white;
+                      alinhamento = Alignment.centerLeft;
+                    }
+
+                    return Align(
+                      alignment: alinhamento,
+                      child: Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Container(
+                          width: containerWidth,
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: cor,
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
+                          child: Text(
+                            item["mensagem"],
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  itemCount: querySnapshot.docs.length,
+                ),
+              );
+            }
+        }
+      },
     );
 
     var listView = Expanded(
@@ -177,7 +249,7 @@ class _MessagesState extends State<Messages> {
         child: SafeArea(
           child: Container(
             padding: EdgeInsets.all(8),
-            child: Column(children: [listView, chatBox]),
+            child: Column(children: [stream, chatBox]),
           ),
         ),
       ),
