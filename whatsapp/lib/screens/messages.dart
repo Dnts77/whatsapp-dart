@@ -44,8 +44,11 @@ class _MessagesState extends State<Messages> {
       mensagem.mensagem = messageText;
       mensagem.urlImage = "";
       mensagem.tipo = "texto";
+      mensagem.time = DateTime.now();
 
       _saveMessage(_loggedUserId, _destUserId, mensagem);
+      _saveMessage(_destUserId, _loggedUserId, mensagem);
+      
     }
   }
 
@@ -123,6 +126,7 @@ class _MessagesState extends State<Messages> {
           .collection("mensagens")
           .doc(_loggedUserId)
           .collection(_destUserId)
+          .orderBy("time", descending: false)
           .snapshots(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
