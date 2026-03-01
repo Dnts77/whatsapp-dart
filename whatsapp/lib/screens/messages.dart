@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp/model/chat.dart';
 import 'package:whatsapp/model/message.dart';
 import 'package:whatsapp/model/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class Messages extends StatefulWidget {
   const Messages(this.contato, {super.key});
@@ -18,22 +20,9 @@ class _MessagesState extends State<Messages> {
   late String _destUserId;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
-  List<String> chatList = [
-    "Olá meu amigo, tudo bem?",
-    "Tudo ótimo, e cntg?",
-    "To bem tbm, ce vai na corrida la?",
-    "Não sei ainda",
-    "Pq se vc fosse, qria ver se dava pra ir jnt",
-    "Posso te confirmar no sábado?",
-    "Beleza",
-    "Excelente",
-    "To ansioso pra essa corrida",
-    "Vai ser daora, mt gente",
-    "Vai sim",
-    "Lembra do carro que eu tinha dito?",
-    "Que daora",
-  ];
+  
   final TextEditingController _controllerMensagem = TextEditingController();
+  
   void _sendMessage() {
     String messageText = _controllerMensagem.text;
 
@@ -49,10 +38,39 @@ class _MessagesState extends State<Messages> {
       _saveMessage(_loggedUserId, _destUserId, mensagem);
       _saveMessage(_destUserId, _loggedUserId, mensagem);
       
+      //Salvando conversa
+      _saveChat(mensagem);
+      
     }
   }
 
-  void _sendPhoto() {}
+  void _saveChat(Message msg){
+
+    //Salvando pro remetente
+    Chat cRemetente = Chat();
+    cRemetente.idRemetente = _loggedUserId;
+    cRemetente.idDestinatario = _destUserId;
+    cRemetente.mensagem = msg.mensagem!;
+    cRemetente.nome = widget.contato.nome!;
+    cRemetente.caminhoFoto = widget.contato.urlImage!;
+    cRemetente.tipoMensagem = msg.tipo!;
+    cRemetente.salvar();
+
+    //Salvando pro destinatário
+    Chat cDestinatario = Chat();
+    cDestinatario.idRemetente = _destUserId;
+    cDestinatario.idDestinatario = _loggedUserId;
+    cDestinatario.mensagem = msg.mensagem!;
+    cDestinatario.nome = widget.contato.nome!;
+    cDestinatario.caminhoFoto = widget.contato.urlImage!;
+    cDestinatario.tipoMensagem = msg.tipo!;
+    cDestinatario.salvar();
+
+  }
+
+  Future<void> _sendPhoto() async{
+    //FIXME: Método de enviar foto não é funcional pois Storage é pago
+  }
 
   void _saveMessage(String idRemetente, String idDest, Message msg) async {
     await db
@@ -191,36 +209,7 @@ class _MessagesState extends State<Messages> {
       },
     );
 
-    var listView = Expanded(
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          double containerWidth = MediaQuery.of(context).size.width * 0.8;
-          Alignment alinhamento = Alignment.centerRight;
-          Color cor = Color(0xffd2ffa5);
-          if (index % 2 == 0) {
-            cor = Colors.white;
-            alinhamento = Alignment.centerLeft;
-          }
-
-          return Align(
-            alignment: alinhamento,
-            child: Padding(
-              padding: EdgeInsets.all(6),
-              child: Container(
-                width: containerWidth,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: cor,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                ),
-                child: Text(chatList[index], style: TextStyle(fontSize: 18)),
-              ),
-            ),
-          );
-        },
-        itemCount: chatList.length,
-      ),
-    );
+    
 
     return Scaffold(
       appBar: AppBar(
