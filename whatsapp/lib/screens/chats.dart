@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:whatsapp/model/chat.dart';
+import 'package:whatsapp/model/user.dart' as us;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -52,6 +53,11 @@ class _ChatsState extends State<Chats> {
     _addChatsListener();
     
   }
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.close();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +100,17 @@ class _ChatsState extends State<Chats> {
                 String? urlImagem = item["caminhoFoto"];
                 String mensagem = item["mensagem"];
                 String nome = item["nome"];
+                String idDestinatario = item["idDestinatario"];
+
+                us.User usuario = us.User();
+                usuario.nome = nome;
+                usuario.urlImage = urlImagem;
+                usuario.idUsuario = idDestinatario;
                   
                   return ListTile(
+                    onTap: (){
+                      Navigator.pushNamed(context, "/mensagens", arguments: usuario);
+                    },
                     contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     leading: CircleAvatar(
                     maxRadius: 30,

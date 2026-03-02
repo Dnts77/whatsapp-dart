@@ -6,6 +6,15 @@ import 'package:whatsapp/routes/route_generator.dart';
 import 'home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+
+
+final ThemeData defaultTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff075e54), secondary: Color(0xff25d366))
+    );
+final ThemeData iosTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey[200]!, secondary: Color(0xff25d366))
+    );
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +25,7 @@ void main() async{
 
   runApp(MaterialApp(
     home: LoginScreen(),
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff075e54), secondary: Color(0xff25d366))
-    ),
+    theme: Platform.isIOS ? iosTheme : defaultTheme,
     initialRoute: "/",
     onGenerateRoute: RouteGenerator.generateRoute,
     debugShowCheckedModeBanner: false,

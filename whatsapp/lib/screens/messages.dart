@@ -1,10 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp/model/chat.dart';
 import 'package:whatsapp/model/message.dart';
 import 'package:whatsapp/model/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'dart:io';
 
 class Messages extends StatefulWidget {
   const Messages(this.contato, {super.key});
@@ -127,7 +128,14 @@ class _MessagesState extends State<Messages> {
               ),
             ),
           ),
-          FloatingActionButton(
+          Platform.isIOS ? 
+          CupertinoButton(
+            child: Text("Enviar"),
+            onPressed: (){
+              _sendMessage();
+            },
+          )
+          :FloatingActionButton(
             backgroundColor: Color(0xff075e54),
             onPressed: () {
               _sendMessage();

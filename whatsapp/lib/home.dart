@@ -1,10 +1,10 @@
 // ignore_for_file: await_only_futures, use_build_context_synchronously
 //ignore_for_file: unused_field
-import 'package:whatsapp/login_screen.dart';
 import 'package:whatsapp/screens/chats.dart';
 import 'package:whatsapp/screens/contacts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -77,13 +77,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         title: const Text("WhatsApp",style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Color(0xff075e54),
         foregroundColor: Colors.white,
-        elevation: 3.5,
+        elevation: Platform.isIOS ? 0 : 3.5,
         shadowColor: Colors.black,
         bottom:  TabBar(
           indicatorWeight: 4,
           labelStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           controller: _tabController,
-          indicatorColor: Colors.white,
+          indicatorColor: Platform.isIOS ? Colors.grey[400] : Colors.white,
           tabs: [
             const Text("Conversas", style: TextStyle(color: Colors.white),),
             const Text("Contatos", style: TextStyle(color: Colors.white))
