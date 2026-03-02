@@ -34,6 +34,6 @@ class User {
 
   String? get urlImage => _urlImage;
 
-  set urlImage(String value) => _urlImage = value;
+  set urlImage(String? value) => _urlImage = value;
 
 }
