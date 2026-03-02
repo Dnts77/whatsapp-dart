@@ -164,7 +164,7 @@ class _MessagesState extends State<Messages> {
             QuerySnapshot querySnapshot =
                 snapshot.data as QuerySnapshot<Object>;
             if (snapshot.hasError) {
-              return Expanded(child: Text("Erro ao carregar dados"));
+              return Text("Erro ao carregar dados");
             } else {
               return Expanded(
                 child: ListView.builder(
