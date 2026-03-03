@@ -6,6 +6,7 @@ import 'package:whatsapp/model/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+import 'dart:async';
 
 class Messages extends StatefulWidget {
   const Messages(this.contato, {super.key});
@@ -23,6 +24,8 @@ class _MessagesState extends State<Messages> {
 
   
   final TextEditingController _controllerMensagem = TextEditingController();
+  final _controller = StreamController<QuerySnapshot>.broadcast();
+  final ScrollController _scrollController = ScrollController();
   
   void _sendMessage() {
     String messageText = _controllerMensagem.text;
@@ -88,6 +91,29 @@ class _MessagesState extends State<Messages> {
     fb.User? loggedUser = auth.currentUser;
     _loggedUserId = loggedUser!.uid;
     _destUserId = widget.contato.idUsuario!;
+
+    _addMessagesListener();
+  }
+  
+  Stream<QuerySnapshot> _addMessagesListener(){
+    final stream = db
+          .collection("mensagens")
+          .doc(_loggedUserId)
+          .collection(_destUserId)
+          .orderBy("time", descending: false)
+          .snapshots();
+
+    stream.listen((dados){
+      _controller.add(dados);
+      Timer(
+        Duration(seconds: 1),
+       (){
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+       }
+      );
+    });
+    
+    return stream;
   }
 
   @override
@@ -148,12 +174,7 @@ class _MessagesState extends State<Messages> {
     );
 
     var stream = StreamBuilder(
-      stream: db
-          .collection("mensagens")
-          .doc(_loggedUserId)
-          .collection(_destUserId)
-          .orderBy("time", descending: false)
-          .snapshots(),
+      stream: _controller.stream,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
@@ -176,7 +197,8 @@ class _MessagesState extends State<Messages> {
             } else {
               return Expanded(
                 child: ListView.builder(
-                  reverse: true,
+                  controller: _scrollController,
+                  reverse: false,
                   itemBuilder: (context, index) {
 
                     List<DocumentSnapshot> mensagens = querySnapshot.docs.toList();
